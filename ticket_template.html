@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Validation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .ticket-container {
+            background: white;
+            border-radius: 1.11vw;
+            box-shadow: 0 0.37vw 1.85vw rgba(0, 0, 0, 0.15);
+            padding: 0;
+            width: 100vw;
+            height: 216.67vw;
+            margin: 0;
+            aspect-ratio: 1080 / 2340;
+        }
+
+        .validation-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.78vw;
+        }
+
+        /* Pulsing Circle Animation */
+        .pulse-container {
+            position: relative;
+            width: 66.66vw;
+            height: 66.66vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 7.77vw;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: pulse-animation 1.5s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        .pulse-ring circle {
+            fill: #0c6330;
+            stroke: none;
+        }
+
+        @keyframes pulse-animation {
+            0% {
+                transform: scale(0.6);
+                stroke-width: 16px;
+            }
+            50% {
+                transform: scale(1.15);
+                stroke-width: 12px;
+            }
+            100% {
+                transform: scale(0.6);
+                stroke-width: 16px;
+            }
+        }
+
+        .logo-wrapper {
+            position: absolute;
+            width: 36.66vw;
+            height: 36.66vw;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0.37vw 1.11vw rgba(0, 0, 0, 0.08);
+            z-index: 2;
+            border: 0.92vw solid #074420;
+            animation: border-fade 1.5s ease-in-out infinite;
+        }
+
+        @keyframes border-fade {
+            0% {
+                border-color: transparent;
+            }
+            25% {
+                border-color: #074420;
+            }
+            75% {
+                border-color: #074420;
+            }
+            100% {
+                border-color: transparent;
+            }
+        }
+
+        .logo {
+            width: 22.22vw;
+            height: 22.22vw;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0c6330;
+            font-size: 9.63vw;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* Customize: Replace with your own logo image */
+        .logo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .ticket-info {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.11vw;
+        }
+
+        .status {
+            font-size: 1.30vw;
+            font-weight: 600;
+            color: #0c6330;
+            text-transform: uppercase;
+            letter-spacing: 0.09vw;
+        }
+
+        .ticket-time {
+            font-size: 15vw;
+            font-weight: 700;
+            color: #3c4043;
+            line-height: 1.2;
+            letter-spacing: -0.09vw;
+        }
+
+        .time-label {
+            font-size: 1.11vw;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.05vw;
+        }
+
+        .ticket-details {
+            background: #fff;
+            border-radius: 0.74vw;
+            padding-left: 3.33vw;
+            padding-top: 3.33vw;
+            padding-bottom: 5.55vw;
+            box-shadow: 0 0.74vw 2.96vw rgba(0, 0, 0, 0.1);
+            border: 0.09vw solid #f0f0f0;
+            width: calc(100vw - 12.96vw);
+            max-width: 100vw;
+        }
+
+        .ticket-type {
+            font-size: 5.55vw;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 0.74vw;
+        }
+
+        .destination {
+            font-size: 3.33vw;
+            color: #666;
+            margin-bottom: 1vw;
+        }
+
+        .expiry-info {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 6vw;
+            gap: 0.37vw;
+        }
+
+        .expiry-label {
+            font-size: 4vw;
+            font-weight: 800;
+            color: #65686C;
+        }
+
+        .expiry-time {
+            font-size: 4vw;
+            font-weight: 800;
+            color: #65686C;
+        }
+
+        .close-btn {
+            width: 2.22vw;
+            height: 2.22vw;
+            border: none;
+            background: transparent;
+            color: #3c4043;
+            font-size: 7.77vw;
+            font-weight: 100;
+            line-height: 2.22vw;
+            text-align: center;
+            cursor: pointer;
+            padding: 0;
+            margin-left: auto;
+            margin-right: 8vw;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8.88vw;
+            margin-top: 2.78vw;
+            margin-left: 2.78vw;
+        }
+
+        .header-title {
+            font-size: 6vw;
+            font-weight: 800;
+            color: #3c4043;
+            margin-bottom: 0;
+            text-align: left;
+        }
+
+        .header-note {
+            font-size: 3.33vw;
+            font-weight: 600;
+            color: #3c4043;
+            text-align: left;
+            margin-bottom: 0;
+        }
+
+        .generate-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .generate-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20.37vw;
+            height: 20.37vw;
+            border-radius: 50%;
+            border: none;
+            background: #0c6330;
+            color: white;
+            font-size: 3.33vw;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0.56vw 1.85vw rgba(0,0,0,0.2);
+            margin-top: 6.66vw;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-container" id="ticketScreen">
+        <div class="header-container">
+            <div>
+                <div class="header-title">Chatham Area Transit</div>
+                <div class="header-note">Show operator your ticket</div>
+            </div>
+            <button class="close-btn" id="closeButton" aria-label="Close">✕</button>
+        </div>
+        <div class="validation-area">
+            <!-- Pulsing Circle with Logo -->
+            <div class="pulse-container">
+                <svg class="pulse-ring" viewBox="0 0 300 300">
+                    <circle cx="150" cy="150" r="110"/>
+                </svg>
+                <div class="logo-wrapper">
+                    <div class="logo">
+                        <!-- Replace cat_logo.png with your actual file name or path -->
+                        <img src="CAT_Logo.jpg" alt="Cat logo" style="width:100%; height:100%; object-fit:contain;" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Information -->
+            <div class="ticket-info">
+                <div class="ticket-time" id="ticketTime">--:--:-- --</div>
+            </div>
+
+            <!-- Ticket Details Card -->
+            <div class="ticket-details">
+                <div class="ticket-type">Adult One Way</div>
+                <div class="destination">Savannah, GA</div>
+                <div class="expiry-info">
+                    <span class="expiry-label">Expires&nbsp;</span>
+                    <span class="expiry-time" id="expiryTime">--:-- --</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="generate-screen" id="generateScreen">
+        <div class="header-title" style="font-size: 22px;">Generate a ticket</div>
+        <button class="generate-button" id="generateButton">GO!</button>
+    </div>
+
+    <script>
+        // Initialize ticket times
+        function initializeTicket() {
+            // Store start time
+            sessionStorage.setItem('ticketStartTime', new Date().getTime());
+            updateTicketDisplay();
+        }
+
+        // Format current time as H:M:S AM/PM
+        function formatCurrentTime(date) {
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            const meridiem = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Convert 0 to 12
+            return `${hours}:${minutes}:${seconds} ${meridiem}`;
+        }
+
+        // Format time as Month Day, Year, H:M AM/PM
+        function formatTimeWithoutSeconds(date) {
+            const dateStr = date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const meridiem = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // Convert 0 to 12
+            const timeStr = `${hours}:${minutes} ${meridiem}`;
+            return `${dateStr}, ${timeStr}`;
+        }
+
+        // Update ticket display
+        function updateTicketDisplay() {
+            const now = new Date();
+            document.getElementById('ticketTime').textContent = formatCurrentTime(now);
+
+            // Calculate and display expiry time (90 minutes from start)
+            const startTime = parseInt(sessionStorage.getItem('ticketStartTime'));
+            if (startTime) {
+                const expiryTime = new Date(startTime + (90 * 60 * 1000)); // 90 minutes in milliseconds
+                document.getElementById('expiryTime').textContent = formatTimeWithoutSeconds(expiryTime);
+            }
+        }
+
+        // Update every second
+        let timerInterval;
+        function startTimer() {
+            updateTicketDisplay();
+            timerInterval = setInterval(updateTicketDisplay, 1000);
+        }
+
+        const ticketScreen = document.getElementById('ticketScreen');
+        const generateScreen = document.getElementById('generateScreen');
+        const closeButton = document.getElementById('closeButton');
+        const generateButton = document.getElementById('generateButton');
+
+        function showTicketScreen() {
+            ticketScreen.style.display = 'block';
+            generateScreen.style.display = 'none';
+        }
+
+        function showGenerateScreen() {
+            ticketScreen.style.display = 'none';
+            generateScreen.style.display = 'block';
+        }
+
+        closeButton.addEventListener('click', showGenerateScreen);
+        generateButton.addEventListener('click', () => {
+            initializeTicket();
+            showTicketScreen();
+        });
+
+        // Check if ticket already exists in this session (or create first ticket)
+        if (!sessionStorage.getItem('ticketStartTime')) {
+            initializeTicket();
+        }
+
+        showTicketScreen();
+        startTimer();
+
+        // Clean up on page unload
+        window.addEventListener('beforeunload', () => {
+            clearInterval(timerInterval);
+        });
+    </script>
+</body>
+</html>

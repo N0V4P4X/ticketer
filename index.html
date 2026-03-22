@@ -299,8 +299,8 @@
         function enterFullscreen() {
             if (!isAndroid) return;
             const el = document.documentElement;
-            if (el.requestFullscreen) el.requestFullscreen();
-            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            if (el.requestFullscreen) el.requestFullscreen({ navigationUI: 'show' });
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen({ navigationUI: 'show' });
         }
 
         function exitFullscreen() {

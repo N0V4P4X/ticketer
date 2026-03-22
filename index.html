@@ -57,7 +57,6 @@
             gap: 2.78vw;
         }
 
-        /* Pulsing Circle Animation */
         .pulse-container {
             position: relative;
             width: 66.66vw;
@@ -82,18 +81,9 @@
         }
 
         @keyframes pulse-animation {
-            0% {
-                transform: scale(0.6);
-                stroke-width: 16px;
-            }
-            50% {
-                transform: scale(1.15);
-                stroke-width: 12px;
-            }
-            100% {
-                transform: scale(0.6);
-                stroke-width: 16px;
-            }
+            0% { transform: scale(0.6); stroke-width: 16px; }
+            50% { transform: scale(1.15); stroke-width: 12px; }
+            100% { transform: scale(0.6); stroke-width: 16px; }
         }
 
         .logo-wrapper {
@@ -112,18 +102,10 @@
         }
 
         @keyframes border-fade {
-            0% {
-                border-color: transparent;
-            }
-            25% {
-                border-color: #074420;
-            }
-            75% {
-                border-color: #074420;
-            }
-            100% {
-                border-color: transparent;
-            }
+            0% { border-color: transparent; }
+            25% { border-color: #074420; }
+            75% { border-color: #074420; }
+            100% { border-color: transparent; }
         }
 
         .logo {
@@ -154,27 +136,12 @@
             gap: 1.11vw;
         }
 
-        .status {
-            font-size: 1.30vw;
-            font-weight: 600;
-            color: #0c6330;
-            text-transform: uppercase;
-            letter-spacing: 0.09vw;
-        }
-
         .ticket-time {
             font-size: 15vw;
             font-weight: 700;
             color: #3c4043;
             line-height: 1.2;
             letter-spacing: -0.09vw;
-        }
-
-        .time-label {
-            font-size: 1.11vw;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.05vw;
         }
 
         .ticket-details {
@@ -327,7 +294,23 @@
     </div>
 
     <script>
-        // Use localStorage so ticket survives app close/reopen within its 90-min window
+        const isAndroid = /android/i.test(navigator.userAgent);
+
+        function enterFullscreen() {
+            if (!isAndroid) return;
+            const el = document.documentElement;
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        }
+
+        function exitFullscreen() {
+            if (!isAndroid) return;
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+
         function initializeTicket() {
             localStorage.setItem('ticketStartTime', new Date().getTime());
             updateTicketDisplay();
@@ -354,14 +337,12 @@
             const meridiem = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
             hours = hours ? hours : 12;
-            const timeStr = `${hours}:${minutes} ${meridiem}`;
-            return `${dateStr}, ${timeStr}`;
+            return `${dateStr}, ${hours}:${minutes} ${meridiem}`;
         }
 
         function updateTicketDisplay() {
             const now = new Date();
             document.getElementById('ticketTime').textContent = formatCurrentTime(now);
-
             const startTime = parseInt(localStorage.getItem('ticketStartTime'));
             if (startTime) {
                 const expiryTime = new Date(startTime + (90 * 60 * 1000));
@@ -392,12 +373,16 @@
 
         closeButton.addEventListener('click', () => {
             localStorage.removeItem('ticketStartTime');
+            clearInterval(timerInterval);
+            exitFullscreen();
             showGenerateScreen();
         });
 
         generateButton.addEventListener('click', () => {
             initializeTicket();
             showTicketScreen();
+            startTimer();
+            enterFullscreen();
         });
 
         // On load: show ticket if one is active and not yet expired
@@ -406,9 +391,14 @@
         if (existingStart && (now - existingStart) < 90 * 60 * 1000) {
             showTicketScreen();
             startTimer();
+            // Can't auto-enter fullscreen without a user gesture, so we skip it here
         } else {
             localStorage.removeItem('ticketStartTime');
             showGenerateScreen();
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
         }
 
         window.addEventListener('beforeunload', () => {

@@ -1,4 +1,4 @@
-const CACHE = 'cat-ticket-v7';
+const CACHE = 'cat-ticket-v8';
 const FILES = [
   '/',
 '/index.html',

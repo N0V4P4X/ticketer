@@ -81,9 +81,9 @@
         }
 
         @keyframes pulse-animation {
-            0% { transform: scale(0.6); stroke-width: 16px; }
-            50% { transform: scale(1.15); stroke-width: 12px; }
-            100% { transform: scale(0.6); stroke-width: 16px; }
+            0%   { transform: scale(0.6); }
+            50%  { transform: scale(1.15); }
+            100% { transform: scale(0.6); }
         }
 
         .logo-wrapper {
@@ -102,9 +102,9 @@
         }
 
         @keyframes border-fade {
-            0% { border-color: transparent; }
-            25% { border-color: #074420; }
-            75% { border-color: #074420; }
+            0%   { border-color: transparent; }
+            25%  { border-color: #074420; }
+            75%  { border-color: #074420; }
             100% { border-color: transparent; }
         }
 
@@ -116,17 +116,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #0c6330;
-            font-size: 9.63vw;
-            font-weight: bold;
-            text-align: center;
         }
 
         .logo img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         .ticket-info {
@@ -150,7 +146,7 @@
             padding-left: 3.33vw;
             padding-top: 3.33vw;
             padding-bottom: 5.55vw;
-            box-shadow: 0 0.74vw 2.96vw rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0.37vw 0.74vw rgba(0, 0, 0, 0.25);
             border: 0.09vw solid #f0f0f0;
             width: calc(100vw - 12.96vw);
             max-width: 100vw;
@@ -231,10 +227,13 @@
 
         .generate-screen {
             display: none;
-            text-align: center;
-            padding-bottom: 73%
+            width: 100vw;
+            height: 100vh;
+            position: relative;
         }
 
+        /* Positioned to match the logo center on the ticket screen:
+           header ~18vw + pulse-container top margin ~2.78vw + half of 66.66vw container = ~54.11vw from top */
         .generate-button {
             display: inline-flex;
             align-items: center;
@@ -242,14 +241,105 @@
             width: 44.44vw;
             height: 44.44vw;
             border-radius: 50%;
-            border: none;
             background: #0c6330;
-            color: white;
-            font-size: 3.33vw;
-            font-weight: 700;
             cursor: pointer;
             box-shadow: 0 0.56vw 1.85vw rgba(0,0,0,0.2);
-            margin-top: 0.05vw;
+            overflow: hidden;
+            padding: 0;
+            position: absolute;
+            top: 54vw;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .generate-button img {
+            width: 22.22vw;
+            height: 22.22vw;
+            object-fit: contain;
+            border-radius: 50%
+        }
+
+        .how-to-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            top: calc(4vw + env(safe-area-inset-top));
+            right: 4vw;
+            width: 7vw;
+            height: 7vw;
+            border-radius: 50%;
+            background: none;
+            border: 0.4vw solid #ccc;
+            color: #bbb;
+            font-size: 4vw;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+            z-index: 50;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 3vw;
+            padding: 6vw;
+            width: 85vw;
+            max-width: 400px;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal h2 {
+            font-size: 5vw;
+            font-weight: 800;
+            color: #222;
+            margin-bottom: 4vw;
+            text-align: center;
+        }
+
+        .modal-section {
+            margin-bottom: 4vw;
+        }
+
+        .modal-section h3 {
+            font-size: 3.8vw;
+            font-weight: 700;
+            color: #0c6330;
+            margin-bottom: 1.5vw;
+        }
+
+        .modal-section p {
+            font-size: 3.3vw;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 3vw;
+            right: 4vw;
+            font-size: 6vw;
+            font-weight: 100;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
         }
     </style>
 </head>
@@ -269,7 +359,7 @@
                 </svg>
                 <div class="logo-wrapper">
                     <div class="logo">
-                        <img src="icon-512.png" alt="CAT logo" style="width:100%; height:100%; object-fit:contain;" />
+                        <img src="icon-512.png" alt="CAT logo" />
                     </div>
                 </div>
             </div>
@@ -290,14 +380,32 @@
     </div>
 
     <div class="generate-screen" id="generateScreen">
-        <!-- <div class="header-title" style="font-size: 22px;">Generate a ticket</div> -->
         <button class="generate-button" id="generateButton">
             <div class="logo-wrapper">
-                    <div class="logo">
-                        <img src="icon-512.png" alt="CAT logo" style="width:100%; height:100%; object-fit:contain;" />
-                    </div>
-                </div>
+                <img src="icon-512.png" alt="Generate ticket">
+            </div>
         </button>
+    </div>
+
+    <button class="how-to-link" id="howToLink">?</button>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="modal-close" id="modalClose">✕</button>
+            <h2>How to Use</h2>
+            <div class="modal-section">
+                <h3>Generating a Ticket</h3>
+                <p>Tap the logo button to generate a new ticket. Show the screen to the driver when boarding. Tickets are valid for 90 minutes.</p>
+            </div>
+            <div class="modal-section">
+                <h3>Android</h3>
+                <p>Open this page in Firefox or Chrome, tap the three-dot menu, and select <strong>Add to Home Screen</strong>. Launch from your home screen for proper full-screen.</p>
+            </div>
+            <div class="modal-section">
+                <h3>iPhone</h3>
+                <p>Open this page in Safari, tap the <strong>Share</strong> button at the bottom, then tap <strong>Add to Home Screen</strong>. Launch from your home screen for proper full-screen.</p>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -367,16 +475,27 @@
         const generateScreen = document.getElementById('generateScreen');
         const closeButton = document.getElementById('closeButton');
         const generateButton = document.getElementById('generateButton');
+        const howToLink = document.getElementById('howToLink');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
 
         function showTicketScreen() {
             ticketScreen.style.display = 'block';
             generateScreen.style.display = 'none';
+            howToLink.style.display = 'none';
         }
 
         function showGenerateScreen() {
             ticketScreen.style.display = 'none';
             generateScreen.style.display = 'block';
+            howToLink.style.display = 'inline-flex';
         }
+
+        howToLink.addEventListener('click', () => modalOverlay.classList.add('open'));
+        modalClose.addEventListener('click', () => modalOverlay.classList.remove('open'));
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) modalOverlay.classList.remove('open');
+        });
 
         closeButton.addEventListener('click', () => {
             localStorage.removeItem('ticketStartTime');
@@ -392,13 +511,11 @@
             enterFullscreen();
         });
 
-        // On load: show ticket if one is active and not yet expired
         const existingStart = parseInt(localStorage.getItem('ticketStartTime'));
         const now = new Date().getTime();
         if (existingStart && (now - existingStart) < 90 * 60 * 1000) {
             showTicketScreen();
             startTimer();
-            // Can't auto-enter fullscreen without a user gesture, so we skip it here
         } else {
             localStorage.removeItem('ticketStartTime');
             showGenerateScreen();

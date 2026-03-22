@@ -2,8 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Ticket Validation</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0c6330">
+
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CAT Ticket">
+    <link rel="apple-touch-icon" href="icon-180.png">
+
     <style>
         * {
             margin: 0;
@@ -124,7 +135,6 @@
             text-align: center;
         }
 
-        /* Customize: Replace with your own logo image */
         .logo img {
             width: 100%;
             height: 100%;
@@ -280,25 +290,21 @@
             <button class="close-btn" id="closeButton" aria-label="Close">✕</button>
         </div>
         <div class="validation-area">
-            <!-- Pulsing Circle with Logo -->
             <div class="pulse-container">
                 <svg class="pulse-ring" viewBox="0 0 300 300">
                     <circle cx="150" cy="150" r="110"/>
                 </svg>
                 <div class="logo-wrapper">
                     <div class="logo">
-                        <!-- Replace cat_logo.png with your actual file name or path -->
-                        <img src="CAT_Logo.jpg" alt="Cat logo" style="width:100%; height:100%; object-fit:contain;" />
+                        <img src="CAT_Logo.jpg" alt="CAT logo" style="width:100%; height:100%; object-fit:contain;" />
                     </div>
                 </div>
             </div>
 
-            <!-- Ticket Information -->
             <div class="ticket-info">
                 <div class="ticket-time" id="ticketTime">--:--:-- --</div>
             </div>
 
-            <!-- Ticket Details Card -->
             <div class="ticket-details">
                 <div class="ticket-type">Adult One Way</div>
                 <div class="destination">Savannah, GA</div>
@@ -316,25 +322,22 @@
     </div>
 
     <script>
-        // Initialize ticket times
+        // Use localStorage so ticket survives app close/reopen within its 90-min window
         function initializeTicket() {
-            // Store start time
-            sessionStorage.setItem('ticketStartTime', new Date().getTime());
+            localStorage.setItem('ticketStartTime', new Date().getTime());
             updateTicketDisplay();
         }
 
-        // Format current time as H:M:S AM/PM
         function formatCurrentTime(date) {
             let hours = date.getHours();
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const seconds = String(date.getSeconds()).padStart(2, '0');
             const meridiem = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // Convert 0 to 12
+            hours = hours ? hours : 12;
             return `${hours}:${minutes}:${seconds} ${meridiem}`;
         }
 
-        // Format time as Month Day, Year, H:M AM/PM
         function formatTimeWithoutSeconds(date) {
             const dateStr = date.toLocaleDateString('en-US', {
                 month: 'short',
@@ -345,25 +348,22 @@
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const meridiem = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
-            hours = hours ? hours : 12; // Convert 0 to 12
+            hours = hours ? hours : 12;
             const timeStr = `${hours}:${minutes} ${meridiem}`;
             return `${dateStr}, ${timeStr}`;
         }
 
-        // Update ticket display
         function updateTicketDisplay() {
             const now = new Date();
             document.getElementById('ticketTime').textContent = formatCurrentTime(now);
 
-            // Calculate and display expiry time (90 minutes from start)
-            const startTime = parseInt(sessionStorage.getItem('ticketStartTime'));
+            const startTime = parseInt(localStorage.getItem('ticketStartTime'));
             if (startTime) {
-                const expiryTime = new Date(startTime + (90 * 60 * 1000)); // 90 minutes in milliseconds
+                const expiryTime = new Date(startTime + (90 * 60 * 1000));
                 document.getElementById('expiryTime').textContent = formatTimeWithoutSeconds(expiryTime);
             }
         }
 
-        // Update every second
         let timerInterval;
         function startTimer() {
             updateTicketDisplay();
@@ -385,27 +385,30 @@
             generateScreen.style.display = 'block';
         }
 
-        closeButton.addEventListener('click', showGenerateScreen);
+        closeButton.addEventListener('click', () => {
+            localStorage.removeItem('ticketStartTime');
+            showGenerateScreen();
+        });
+
         generateButton.addEventListener('click', () => {
             initializeTicket();
             showTicketScreen();
         });
 
-        // Check if ticket already exists in this session (or create first ticket)
-        if (!sessionStorage.getItem('ticketStartTime')) {
-            initializeTicket();
+        // On load: show ticket if one is active and not yet expired
+        const existingStart = parseInt(localStorage.getItem('ticketStartTime'));
+        const now = new Date().getTime();
+        if (existingStart && (now - existingStart) < 90 * 60 * 1000) {
+            showTicketScreen();
+            startTimer();
+        } else {
+            localStorage.removeItem('ticketStartTime');
+            showGenerateScreen();
         }
 
-        showTicketScreen();
-        startTimer();
-
-        // Clean up on page unload
         window.addEventListener('beforeunload', () => {
             clearInterval(timerInterval);
         });
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js');
-        };
     </script>
 </body>
 </html>

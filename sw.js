@@ -3,7 +3,7 @@
  * Copyright (C) 2026 N0V4-N3XU5
  */
 
-const CACHE = 'cat-ticket-v11';
+const CACHE = 'cat-ticket-v12';
 const FILES = [
   '/',
 '/index.html',

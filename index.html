@@ -380,7 +380,7 @@
         }
 
         .generate-button {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             width: 44.44vw;
@@ -390,17 +390,9 @@
             cursor: pointer;
             overflow: hidden;
             padding: 0;
-            position: relative;
+            position: absolute;
             top: 54vw;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .generate-button img {
-            width: 22.22vw;
-            height: 22.22vw;
-            object-fit: contain;
-            border-radius: 50%
+            left: calc(50% - 22.22vw);
         }
 
         .how-to-link {
